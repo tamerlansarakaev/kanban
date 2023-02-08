@@ -69,6 +69,7 @@ const KanbanBoardContainer: React.FC<KanbanBoardContainerProps> = (props) => {
         item.id
       );
       projectTasks?._embedded.elements.forEach((val: any) => {
+        if (val._links.children) return;
         allTasks.push(val);
       });
     }
