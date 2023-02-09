@@ -66,7 +66,6 @@ const KanbanBoard: React.FC<KanbanBoardProps> = (props) => {
       // }
 
       const record = getColumnById(source.droppableId)?.records?.[source.index];
-
       onCardMove({
         source: getColumnById(source.droppableId),
         column: getColumnById(destination.droppableId),
@@ -76,7 +75,8 @@ const KanbanBoard: React.FC<KanbanBoardProps> = (props) => {
     },
     [onCardMove, getColumnByIndex, getColumnById]
   );
-
+  
+    
   return (
     <DragDropContext onDragEnd={handleDragEnd}>
       <Droppable droppableId="BOARD" type="COLUMN" direction="horizontal">

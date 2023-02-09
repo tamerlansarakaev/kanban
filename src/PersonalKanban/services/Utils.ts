@@ -1,5 +1,5 @@
 import { v4 as uuidv4 } from 'uuid';
-import moment from 'moment';
+import moment, { months } from 'moment';
 
 import { Column, Record, User } from 'PersonalKanban/types';
 import { RecordStatus } from '../enums';
@@ -10,6 +10,19 @@ import { parse, serialize } from 'tinyduration';
 export const getId = (): string => {
   return uuidv4();
 };
+
+const estimatedTime = (time: string) => {
+  const interval: any = parse(time);
+  const hours = interval.hours ? interval.hours : 0;
+  const days = interval.days ? interval.days * 24 : 0;
+  const weeks = interval.weeks ? interval.weeks * 7 * 24 : 0;
+  const month = interval.months ? interval.months * 30 * 24 : 0;
+  const years = interval.years ? interval.years * 12 * 30 * 24 : 0;
+
+  const result = hours + days + weeks + month + years;
+  return result;
+};
+
 export const checkColumnsEmpty = (columns: Column[]) => {
   return columns.every((col) => col.records?.length);
 };
@@ -87,7 +100,7 @@ export const getUsersFromResponse = (
           description: item.subject || '',
           status: taskStatus,
           estimated_time: item.estimatedTime
-            ? parse(item.estimatedTime)?.hours
+            ? estimatedTime(item.estimatedTime)
             : 0,
           start_date: item.startDate || '',
           end_date: item.dueDate || '',

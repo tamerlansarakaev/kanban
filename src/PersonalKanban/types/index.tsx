@@ -16,11 +16,18 @@ export type Record = {
   status: RecordStatus;
   color?: string;
   createdAt?: string;
-  estimated_time?: number;
+  estimated_time?: any;
   hours?: number;
   start_date?: string;
   end_date?: string;
   changedDate: string;
+};
+
+export type IEstimatedTime = {
+  hours: number | undefined;
+  days: number | undefined;
+  months: number | undefined;
+  years: number | undefined;
 };
 
 type TimeTaskItem = {
@@ -58,6 +65,7 @@ export type Column = {
 };
 export interface IResponseProject {
   id: number;
+  identifier: string;
   _links: {
     workPackages: {
       href: string | undefined;
