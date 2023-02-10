@@ -78,6 +78,7 @@ export const getUsersFromResponse = (
       description: { raw: any };
       startDate: any;
       lockVersion: number;
+      nameProject: string;
       dueDate: any;
       updatedAt: string | number | Date;
     }) => {
@@ -99,6 +100,7 @@ export const getUsersFromResponse = (
           title: String(item.id),
           description: item.subject || '',
           status: taskStatus,
+          nameProject: item.nameProject,
           estimated_time: item.estimatedTime
             ? estimatedTime(item.estimatedTime)
             : 0,
@@ -111,7 +113,7 @@ export const getUsersFromResponse = (
           caption: '',
           color: '',
           createdAt: '',
-          hours: parse(item.spentTime)?.hours,
+          hours: estimatedTime(item.spentTime),
         });
       }
     }

@@ -70,7 +70,7 @@ const KanbanBoardContainer: React.FC<KanbanBoardContainerProps> = (props) => {
       );
       projectTasks?._embedded.elements.forEach((val: any) => {
         if (val._links.children) return;
-        allTasks.push(val);
+        allTasks.push({ ...val, nameProject: item.identifier });
       });
     }
     const users = getUsersFromResponse(defaultUsersData, allTasks);

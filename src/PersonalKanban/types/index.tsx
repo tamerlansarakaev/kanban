@@ -14,6 +14,7 @@ export type Record = {
   description?: string;
   caption?: string;
   status: RecordStatus;
+  nameProject: string;
   color?: string;
   createdAt?: string;
   estimated_time?: any;
@@ -66,6 +67,7 @@ export type Column = {
 export interface IResponseProject {
   id: number;
   identifier: string;
+  name: string;
   _links: {
     workPackages: {
       href: string | undefined;

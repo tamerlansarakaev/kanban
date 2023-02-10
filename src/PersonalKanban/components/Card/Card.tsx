@@ -65,6 +65,7 @@ const Card: React.FC<CardProps> = (props) => {
 
   const handleHoursState = React.useCallback(
     (e) => {
+      console.log(e);
       if (e.target.value >= 0) {
         setHoursState(e.target.value);
       }
@@ -93,6 +94,9 @@ const Card: React.FC<CardProps> = (props) => {
         <Typography title={title} gutterBottom noWrap>
           <b>{title}</b>
         </Typography>
+        <Typography>
+          <b>{record.nameProject}</b>
+        </Typography>
         <Box display="flex" alignItems="center">
           {showEditAction && <IconButton icon="edit" onClick={handleEdit} />}
           {showDeleteAction && (
@@ -103,7 +107,7 @@ const Card: React.FC<CardProps> = (props) => {
       <Typography
         title={description}
         className={classes.description}
-        style={{ flex: 1 }}
+        style={{ flex: 1, fontWeight: 700 }}
         variant="body2"
         gutterBottom
       >
