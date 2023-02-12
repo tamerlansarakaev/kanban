@@ -90,9 +90,14 @@ const Card: React.FC<CardProps> = (props) => {
       ref={innerRef}
       {...rest}
     >
-      <Box display="flex" alignItems="center" justifyContent="space-between">
-        <Typography title={title} gutterBottom noWrap>
-          <b>{title}</b>
+      <Box display="flex">
+        <Typography
+          title={title}
+          gutterBottom
+          noWrap
+          style={{ marginRight: 12 }}
+        >
+          <b>ID:{title}</b>
         </Typography>
         <Typography>
           <b>{record.nameProject}</b>
