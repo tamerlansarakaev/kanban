@@ -14,7 +14,7 @@ export type Record = {
   description?: string;
   caption?: string;
   status: RecordStatus;
-  nameProject: string;
+  nameProject?: string;
   color?: string;
   createdAt?: string;
   estimated_time?: any;

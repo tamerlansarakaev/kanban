@@ -236,7 +236,6 @@ const KanbanBoardContainer: React.FC<KanbanBoardContainerProps> = (props) => {
       const indexRecord = cloneUsersState[choosedUserId - 1].records.findIndex(
         (item) => item.id === idRecord
       );
-      cloneUsersState[choosedUserId - 1].records[indexRecord].hours = hours;
       const date = new Date();
       OpenProjectService.updateTime(
         {
@@ -259,6 +258,7 @@ const KanbanBoardContainer: React.FC<KanbanBoardContainerProps> = (props) => {
         cloneUsersState[choosedUserId - 1].records[indexRecord].item_id
       );
       setUsers([...cloneUsersState]);
+      window.location.reload();
     },
     [choosedUserId]
   );

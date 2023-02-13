@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import clsx from 'clsx';
 import Box from '@material-ui/core/Box';
 import Paper from '@material-ui/core/Paper';
@@ -7,7 +7,7 @@ import { makeStyles } from '@material-ui/core/styles';
 
 import { Record } from 'PersonalKanban/types';
 import IconButton from 'PersonalKanban/components/IconButton';
-import { TextField } from '@material-ui/core';
+import { Button, TextField } from '@material-ui/core';
 import { RecordContext } from '../../containers/KanbanBoard';
 
 const useStyles = makeStyles(() => ({
@@ -51,7 +51,6 @@ const Card: React.FC<CardProps> = (props) => {
   const { title, description, createdAt } = record;
 
   const classes = useStyles();
-
   const handleEdit = React.useCallback(() => {
     onEdit(record);
   }, [record, onEdit]);
@@ -61,18 +60,23 @@ const Card: React.FC<CardProps> = (props) => {
     onDelete,
   ]);
 
-  const [hoursState, setHoursState] = React.useState<number>(record.hours || 0);
+  const [hoursState, setHoursState] = React.useState<number>(0);
 
   const handleHoursState = React.useCallback(
     (e) => {
-      console.log(e);
       if (e.target.value >= 0) {
         setHoursState(e.target.value);
       }
-      handleRecordHours(record.id, Number(e.target.value));
     },
     [hoursState]
   );
+
+  const handleHoursAdd = () => {
+    if (Number(hoursState) < 0) return;
+    handleRecordHours(record.id, Number(hoursState));
+    setHoursState(0);
+  };
+
   useEffect(() => {
     //console.log('render_card', record)
   }, []);
@@ -100,7 +104,7 @@ const Card: React.FC<CardProps> = (props) => {
           <b>ID:{title}</b>
         </Typography>
         <Typography>
-          <b>{record.nameProject}</b>
+          <b>( {record.nameProject} )</b>
         </Typography>
         <Box display="flex" alignItems="center">
           {showEditAction && <IconButton icon="edit" onClick={handleEdit} />}
@@ -123,14 +127,26 @@ const Card: React.FC<CardProps> = (props) => {
         >
           <Box display="flex" flexDirection="column">
             {description}
-            <TextField
-              id="outlined-name"
-              label="Время"
-              type={'number'}
-              value={hoursState}
-              style={{ width: '50%' }}
-              onChange={handleHoursState}
-            />
+            <Box display="flex">
+              <TextField
+                id="outlined-name"
+                label="Время"
+                type={'number'}
+                value={hoursState}
+                style={{ width: '50%', marginRight: 14 }}
+                onChange={handleHoursState}
+              />
+              <Button
+                style={{
+                  background: 'rgb(242 108 108)',
+                  color: '#fff',
+                  fontWeight: 600,
+                }}
+                onClick={() => handleHoursAdd()}
+              >
+                Добавить к {record.hours}
+              </Button>
+            </Box>
           </Box>
         </Box>
 
