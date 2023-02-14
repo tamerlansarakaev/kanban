@@ -258,7 +258,6 @@ const KanbanBoardContainer: React.FC<KanbanBoardContainerProps> = (props) => {
         cloneUsersState[choosedUserId - 1].records[indexRecord].item_id
       );
       setUsers([...cloneUsersState]);
-      window.location.reload();
     },
     [choosedUserId]
   );
