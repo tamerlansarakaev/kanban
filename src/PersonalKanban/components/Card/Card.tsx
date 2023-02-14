@@ -127,7 +127,7 @@ const Card: React.FC<CardProps> = (props) => {
         >
           <Box display="flex" flexDirection="column">
             {description}
-            <Box display="flex">
+            <Box display="flex" alignItems="center">
               <TextField
                 id="outlined-name"
                 label="Время"
@@ -136,16 +136,19 @@ const Card: React.FC<CardProps> = (props) => {
                 style={{ width: '50%', marginRight: 14 }}
                 onChange={handleHoursState}
               />
-              <Button
-                style={{
-                  background: 'rgb(242 108 108)',
-                  color: '#fff',
-                  fontWeight: 600,
-                }}
-                onClick={() => handleHoursAdd()}
-              >
-                Добавить к {record.hours}
-              </Button>
+              <Box>
+                <Button
+                  style={{
+                    background: 'rgb(242 108 108)',
+                    color: '#fff',
+                    fontWeight: 600,
+                    padding: 0,
+                  }}
+                  onClick={() => handleHoursAdd()}
+                >
+                  Добавить к {record.hours}
+                </Button>
+              </Box>
             </Box>
           </Box>
         </Box>
