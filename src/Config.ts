@@ -1,5 +1,5 @@
 export const config = {
   userName: 'apikey',
-  OPEN_PROJECT_URL: 'https://izhsintez.openproject.com/api/v3',
-  TOKEN: 'd42835e28467c1f2f8df5c1c2f42388cc9386dd755ab01a84ec3ffa787162807',
+  OPEN_PROJECT_URL: 'http://127.0.0.1:8080/api/v3',
+  TOKEN: '5c96c5197d801d1eda33b6c8623cb99c0769be7b8dcafa047422935d417b0bd6',
 };

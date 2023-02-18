@@ -75,7 +75,6 @@ const Card: React.FC<CardProps> = (props) => {
     if (Number(hoursState) < 0) return;
     handleRecordHours(record.id, Number(hoursState));
     setHoursState(0);
-    window.location.reload();
   };
 
   useEffect(() => {
@@ -134,7 +133,7 @@ const Card: React.FC<CardProps> = (props) => {
                 label="Время"
                 type={'number'}
                 value={hoursState}
-                style={{ width: '50%', marginRight: 14 }}
+                style={{ width: '30%', marginRight: 14 }}
                 onChange={handleHoursState}
               />
               <Box>
@@ -143,7 +142,13 @@ const Card: React.FC<CardProps> = (props) => {
                     background: 'rgb(242 108 108)',
                     color: '#fff',
                     fontWeight: 600,
-                    padding: 7,
+                    // padding: '1em',
+                    left: '-15px',
+                    margin: '8px',
+                    height: 40,
+                    width: 80,
+                    top: '2px',
+                    textTransform: 'none',
                   }}
                   onClick={() => handleHoursAdd()}
                 >

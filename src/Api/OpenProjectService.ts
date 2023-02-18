@@ -27,6 +27,11 @@ export class OpenProjectService {
     return data;
   }
 
+  static async getTask(id: number | undefined) {
+    const { data } = await api.get(`work_packages/${id}`);
+    return data;
+  }
+
   static async updateTaskToDefault(id: number | undefined, upd_data: IUpdate) {
     const { data } = await api.patch(`work_packages/${id}`, upd_data);
     return data;
@@ -35,6 +40,7 @@ export class OpenProjectService {
     upd_data: {
       hours: string;
       spentOn: string;
+      lockVersion: number | undefined;
       _links: { workPackage: { href: string } };
       comment: { format: string; raw: string };
     },

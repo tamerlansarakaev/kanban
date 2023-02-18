@@ -1,9 +1,9 @@
 import { v4 as uuidv4 } from 'uuid';
-import moment, { months } from 'moment';
+import moment from 'moment';
 
 import { Column, Record, User } from 'PersonalKanban/types';
 import { RecordStatus } from '../enums';
-import { parse, serialize } from 'tinyduration';
+import { parse } from 'tinyduration';
 
 // Basic parsing
 
@@ -12,6 +12,10 @@ export const getId = (): string => {
 };
 
 const estimatedTime = (time: string) => {
+  const validFormat = /^[0-9dhm\s]+$/i.test(time);
+  if (!validFormat) {
+    return 0;
+  }
   const interval: any = parse(time);
   const hours = interval.hours ? interval.hours : 0;
   const days = interval.days ? interval.days * 24 : 0;
@@ -21,10 +25,6 @@ const estimatedTime = (time: string) => {
 
   const result = hours + days + weeks + month + years;
   return result;
-};
-
-export const checkColumnsEmpty = (columns: Column[]) => {
-  return columns.every((col) => col.records?.length);
 };
 
 export const getMovedUsers = (
@@ -67,10 +67,15 @@ export const getUsersFromResponse = (
   defaultUsersData: User[],
   data: any
 ): User[] => {
-  const tempUsersData: User[] = defaultUsersData;
+  let tempUsersData: User[] = defaultUsersData;
+
   data.forEach(
     (item: {
-      _links: { customField6: { title: string }; status: { title: string } };
+      _links: {
+        customField6: { title: string };
+        status: { title: string };
+        responsible?: { title: string };
+      };
       id: number;
       spentTime: string;
       estimatedTime: string;
@@ -82,12 +87,10 @@ export const getUsersFromResponse = (
       dueDate: any;
       updatedAt: string | number | Date;
     }) => {
-      if (item.id === 87) {
-        console.log(item);
-      }
-      const userIndex = tempUsersData.findIndex(
-        (user) => user.name === item._links?.customField6?.title
-      );
+      const userIndex = tempUsersData.findIndex((user) => {
+        console.log(item._links?.responsible?.title, user.name);
+        return user.name === item._links?.responsible?.title;
+      });
       if (userIndex >= 0 && valueExistsInStatus(item._links.status.title)) {
         const taskStatus = valueExistsInStatus(
           item._links.status.title

@@ -48,7 +48,7 @@ const KanbanBoardContainer: React.FC<KanbanBoardContainerProps> = (props) => {
   const classes = useKanbanBoardStyles();
 
   const [usersState, setUsers] = React.useState<User[]>(defaultUsersData);
-
+  const [updateTasks, setUpdateTasks] = React.useState<boolean>(true);
   const [choosedUserId, setChoosedUserId] = React.useState<number>(1);
   const [contentCardKanban, setContentCardKanban] = React.useState<Record[]>(
     []
@@ -60,7 +60,7 @@ const KanbanBoardContainer: React.FC<KanbanBoardContainerProps> = (props) => {
     initialState = getInitialState(contentCardKanban);
   }
   const { req, loading, setLoading } = useFetch(async () => {
-    //Получение задач с OpenProject, которые при попадании в resolve попадут в состояния.
+    // Получение задач с OpenProject, которые при попадании в resolve попадут в состояния.
     const allTasks: any[] = [];
     const res = await OpenProjectService.getAllProjects();
     const projects = res?._embedded.elements as IResponseProject[];
@@ -76,7 +76,6 @@ const KanbanBoardContainer: React.FC<KanbanBoardContainerProps> = (props) => {
     const users = getUsersFromResponse(defaultUsersData, allTasks);
     setUsers(users);
     contentCardKanbanChange(choosedUserId);
-
     setLoading(false);
   });
 
@@ -117,31 +116,48 @@ const KanbanBoardContainer: React.FC<KanbanBoardContainerProps> = (props) => {
 
   const handleToDefaultColumns = React.useCallback(async () => {
     // Получает пользователя с основными данными.
+    setUpdateTasks(true);
     const choosedUser = usersState.find((state) => {
       return state.id === choosedUserId;
     });
 
     if (!choosedUser) return;
 
-    const requestData = choosedUser.records.map((state) => {
-      return { id: state.item_id, lockVersion: state.lockVersion };
+    const requestData = choosedUser.records.map((record) => {
+      return {
+        id: record.item_id,
+        lockVersion: record.lockVersion,
+        identificateId: record.id,
+      };
     });
 
     // Ставит колонны на в плане, выбранного пользователя.
-    const result = await Promise.all(
-      requestData.map((state) =>
-        OpenProjectService.updateTaskToDefault(state.id, {
-          lockVersion: state.lockVersion,
-          _links: {
-            status: { href: COLUMNS_STATUSES[0].link },
-          },
-        })
-      )
-    ).then((updatedTasks) => {
-      document.location.reload();
-      return updatedTasks;
-    });
 
+    const result = await Promise.all(
+      requestData.map(async (record) => {
+        console.log(requestData);
+
+        const updatedColumns = reorderCards({
+          columns,
+          destinationColumn: columns[0],
+          destinationIndex: 0,
+          sourceColumn: columns[0],
+          sourceIndex: getRecordIndex(record.identificateId, columns[0].id)!,
+        });
+        setColumns(updatedColumns);
+        return await OpenProjectService.getTask(record.id).then(
+          (task: Record) => {
+            OpenProjectService.updateTaskToDefault(record.id, {
+              lockVersion: task.lockVersion,
+              _links: {
+                status: { href: COLUMNS_STATUSES[0].link },
+              },
+            });
+          }
+        );
+      })
+    );
+    req();
     return result;
   }, [choosedUserId]);
 
@@ -206,26 +222,30 @@ const KanbanBoardContainer: React.FC<KanbanBoardContainerProps> = (props) => {
       const newStatusUrl = COLUMNS_STATUSES.filter(
         (item) => item.status === column.status
       )[0].link;
-      OpenProjectService.updateTask(
-        {
-          lockVersion: record.lockVersion,
-          _links: {
-            status: {
-              href: newStatusUrl,
+      OpenProjectService.getTask(record.item_id).then((task: Record) => {
+        OpenProjectService.updateTask(
+          {
+            lockVersion: task.lockVersion,
+            _links: {
+              status: {
+                href: newStatusUrl,
+              },
             },
           },
-        },
-        record.item_id
-      );
+          record.item_id
+        );
+      });
       setColumns(updatedColumns);
-      const bufferUsers = getMovedUsers(
-        usersState,
-        choosedUserId,
-        record,
-        column,
-        changedDT
-      );
-      setUsers([...bufferUsers]);
+      // const bufferUsers = getMovedUsers(
+      //   usersState,
+      //   choosedUserId,
+      //   record,
+      //   column,
+      //   changedDT
+      // );
+      // setUsers(bufferUsers);
+      setUpdateTasks(true);
+      // req();
     },
 
     [columns, getRecordIndex, usersState, props]
@@ -236,57 +256,62 @@ const KanbanBoardContainer: React.FC<KanbanBoardContainerProps> = (props) => {
       const indexRecord = cloneUsersState[choosedUserId - 1].records.findIndex(
         (item) => item.id === idRecord
       );
+      const idTask =
+        cloneUsersState[choosedUserId - 1].records[indexRecord].item_id;
       const date = new Date();
-      OpenProjectService.updateTime(
-        {
-          comment: {
-            format: 'plain',
-            raw: 'Kanban Test',
-          },
-          spentOn: `${date.toISOString().split('T')[0]}`,
-          hours: serialize({
-            hours: hours,
-          }),
-          _links: {
-            workPackage: {
-              href: `/api/v3/work_packages/${
-                cloneUsersState[choosedUserId - 1].records[indexRecord].item_id
-              }`,
+
+      OpenProjectService.getTask(idTask).then((task: Record) => {
+        OpenProjectService.updateTime(
+          {
+            comment: {
+              format: 'plain',
+              raw: 'Kanban Test',
+            },
+            spentOn: `${date.toISOString().split('T')[0]}`,
+            lockVersion: task.lockVersion,
+            hours: serialize({
+              hours: hours,
+            }),
+            _links: {
+              workPackage: {
+                href: `/api/v3/work_packages/${idTask}`,
+              },
             },
           },
-        },
-        cloneUsersState[choosedUserId - 1].records[indexRecord].item_id
-      );
+          idTask
+        );
+      });
       setUsers([...cloneUsersState]);
+      req();
     },
     [choosedUserId]
   );
 
-  const handleAddRecord = React.useCallback(
-    ({ column, record }: { column: Column; record: Record }) => {
-      const columnIndex = getColumnIndex(column.id);
-      setColumns((_columns: Column[]) => {
-        const columns = cloneColumns(_columns);
+  // const handleAddRecord = React.useCallback(
+  //   ({ column, record }: { column: Column; record: Record }) => {
+  //     const columnIndex = getColumnIndex(column.id);
+  //     setColumns((_columns: Column[]) => {
+  //       const columns = cloneColumns(_columns);
 
-        columns[columnIndex].records = [
-          {
-            id: getId(),
-            title: record.title,
-            description: record.description,
-            color: record.color,
-            hours: 0,
-            status: record.status,
-            createdAt: getCreatedAt(),
-            changedDate: new Date().toLocaleDateString().split(',').join(''),
-          },
-          ...columns[columnIndex].records,
-        ];
-        return columns;
-      });
-    },
+  //       columns[columnIndex].records = [
+  //         {
+  //           id: getId(),
+  //           title: record.title,
+  //           description: record.description,
+  //           color: record.color,
+  //           hours: 0,
+  //           status: record.status,
+  //           createdAt: getCreatedAt(),
+  //           changedDate: new Date().toLocaleDateString().split(',').join(''),
+  //         },
+  //         ...columns[columnIndex].records,
+  //       ];
+  //       return columns;
+  //     });
+  //   },
 
-    [cloneColumns, getColumnIndex]
-  );
+  //   [cloneColumns, getColumnIndex]
+  // );
 
   const handleRecordEdit = React.useCallback(
     ({ column, record }: { column: Column; record: Record }) => {
@@ -334,8 +359,11 @@ const KanbanBoardContainer: React.FC<KanbanBoardContainerProps> = (props) => {
   }, [columns, contentCardKanban]);
 
   React.useEffect(() => {
-    req();
-  }, []);
+    if (updateTasks) {
+      req();
+      setUpdateTasks(false);
+    }
+  }, [columns]);
   React.useEffect(() => {
     initialState = getInitialState(
       contentCardKanban.sort((a, b) => {
@@ -366,7 +394,7 @@ const KanbanBoardContainer: React.FC<KanbanBoardContainerProps> = (props) => {
             onColumnEdit={handleColumnEdit}
             onColumnDelete={handleColumnDelete}
             onCardMove={handleCardMove}
-            onAddRecord={handleAddRecord}
+            // onAddRecord={handleAddRecord}
             onRecordEdit={handleRecordEdit}
             onRecordDelete={handleRecordDelete}
             onAllRecordDelete={handleAllRecordDelete}
