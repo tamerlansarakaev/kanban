@@ -61,6 +61,9 @@ const KanbanBoardContainer: React.FC<KanbanBoardContainerProps> = (props) => {
   }
   const { req, loading, setLoading } = useFetch(async () => {
     // Получение задач с OpenProject, которые при попадании в resolve попадут в состояния.
+    if (updateTasks) {
+      setLoading(true);
+    }
     const allTasks: any[] = [];
     const res = await OpenProjectService.getAllProjects();
     const projects = res?._embedded.elements as IResponseProject[];
@@ -135,7 +138,6 @@ const KanbanBoardContainer: React.FC<KanbanBoardContainerProps> = (props) => {
 
     const result = await Promise.all(
       requestData.map(async (record) => {
-        console.log(requestData);
 
         const updatedColumns = reorderCards({
           columns,
@@ -282,7 +284,6 @@ const KanbanBoardContainer: React.FC<KanbanBoardContainerProps> = (props) => {
         );
       });
       setUsers([...cloneUsersState]);
-      req();
     },
     [choosedUserId]
   );

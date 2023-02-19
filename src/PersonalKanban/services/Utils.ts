@@ -12,10 +12,6 @@ export const getId = (): string => {
 };
 
 const estimatedTime = (time: string) => {
-  const validFormat = /^[0-9dhm\s]+$/i.test(time);
-  if (!validFormat) {
-    return 0;
-  }
   const interval: any = parse(time);
   const hours = interval.hours ? interval.hours : 0;
   const days = interval.days ? interval.days * 24 : 0;
@@ -88,14 +84,12 @@ export const getUsersFromResponse = (
       updatedAt: string | number | Date;
     }) => {
       const userIndex = tempUsersData.findIndex((user) => {
-        console.log(item._links?.responsible?.title, user.name);
         return user.name === item._links?.responsible?.title;
       });
       if (userIndex >= 0 && valueExistsInStatus(item._links.status.title)) {
         const taskStatus = valueExistsInStatus(
           item._links.status.title
         ) as RecordStatus;
-
         tempUsersData[userIndex].records.push({
           item_id: item.id,
           lockVersion: item.lockVersion,
