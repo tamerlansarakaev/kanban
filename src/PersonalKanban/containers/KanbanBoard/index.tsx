@@ -138,7 +138,6 @@ const KanbanBoardContainer: React.FC<KanbanBoardContainerProps> = (props) => {
 
     const result = await Promise.all(
       requestData.map(async (record) => {
-
         const updatedColumns = reorderCards({
           columns,
           destinationColumn: columns[0],

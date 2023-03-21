@@ -64,10 +64,12 @@ export const getUsersFromResponse = (
   data: any
 ): User[] => {
   let tempUsersData: User[] = defaultUsersData;
-
+  console.log(data)
+  console.log(defaultUsersData)
   data.forEach(
     (item: {
       _links: {
+        [x: string]: any;
         customField6: { title: string };
         status: { title: string };
         responsible?: { title: string };
@@ -84,9 +86,9 @@ export const getUsersFromResponse = (
       updatedAt: string | number | Date;
     }) => {
       const userIndex = tempUsersData.findIndex((user) => {
-        return user.name === item._links?.responsible?.title;
+        return user.name === item._links?.assignee?.title;
       });
-      if (userIndex >= 0 && valueExistsInStatus(item._links.status.title)) {
+      if (userIndex !== -1 && valueExistsInStatus(item._links.status.title)) {
         const taskStatus = valueExistsInStatus(
           item._links.status.title
         ) as RecordStatus;
