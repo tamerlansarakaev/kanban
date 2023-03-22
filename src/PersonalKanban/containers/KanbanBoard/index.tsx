@@ -64,6 +64,8 @@ const KanbanBoardContainer: React.FC<KanbanBoardContainerProps> = (props) => {
     if (updateTasks) {
       setLoading(true);
     }
+    const currentUser = await OpenProjectService.getCurrentUser();
+    console.log(currentUser)
     const allTasks: any[] = [];
     const res = await OpenProjectService.getAllProjects();
     const projects = res?._embedded.elements as IResponseProject[];
@@ -76,6 +78,7 @@ const KanbanBoardContainer: React.FC<KanbanBoardContainerProps> = (props) => {
         allTasks.push({ ...val, nameProject: item.identifier });
       });
     }
+
     const users = getUsersFromResponse(defaultUsersData, allTasks);
     setUsers(users);
     contentCardKanbanChange(choosedUserId);
