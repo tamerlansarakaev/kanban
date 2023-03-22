@@ -18,6 +18,11 @@ export class OpenProjectService {
     return data;
   }
 
+  static async getCurrentUser() {
+    const { data } = await api.get('users/me');
+    return data;
+  }
+
   static async getAllTaskByProject(project_id: number) {
     const { data } = await api.get(`/projects/${project_id}/work_packages`);
     return data;
