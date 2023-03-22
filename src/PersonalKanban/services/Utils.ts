@@ -64,8 +64,6 @@ export const getUsersFromResponse = (
   data: any
 ): User[] => {
   let tempUsersData: User[] = defaultUsersData;
-  console.log(data)
-  console.log(defaultUsersData)
   data.forEach(
     (item: {
       _links: {
@@ -92,6 +90,7 @@ export const getUsersFromResponse = (
         const taskStatus = valueExistsInStatus(
           item._links.status.title
         ) as RecordStatus;
+
         tempUsersData[userIndex].records.push({
           item_id: item.id,
           lockVersion: item.lockVersion,

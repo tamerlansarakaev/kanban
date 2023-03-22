@@ -65,11 +65,11 @@ const KanbanBoardContainer: React.FC<KanbanBoardContainerProps> = (props) => {
       setLoading(true);
     }
     const currentUser = await OpenProjectService.getCurrentUser();
-    console.log(currentUser)
     const allTasks: any[] = [];
     const res = await OpenProjectService.getAllProjects();
     const projects = res?._embedded.elements as IResponseProject[];
     for (const item of projects) {
+      if (!item.active) continue;
       const projectTasks = await OpenProjectService.getAllTaskByProject(
         item.id
       );
@@ -248,8 +248,6 @@ const KanbanBoardContainer: React.FC<KanbanBoardContainerProps> = (props) => {
       //   changedDT
       // );
       // setUsers(bufferUsers);
-      setUpdateTasks(true);
-      // req();
     },
 
     [columns, getRecordIndex, usersState, props]
@@ -286,6 +284,7 @@ const KanbanBoardContainer: React.FC<KanbanBoardContainerProps> = (props) => {
         );
       });
       setUsers([...cloneUsersState]);
+      setUpdateTasks(true);
     },
     [choosedUserId]
   );

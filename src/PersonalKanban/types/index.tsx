@@ -68,6 +68,7 @@ export interface IResponseProject {
   id: number;
   identifier: string;
   name: string;
+  active: boolean;
   _links: {
     workPackages: {
       href: string | undefined;
