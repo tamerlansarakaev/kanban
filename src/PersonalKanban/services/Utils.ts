@@ -63,6 +63,7 @@ export const getUsersFromResponse = (
   defaultUsersData: User[],
   data: any
 ): User[] => {
+  console.log(data)
   let tempUsersData: User[] = defaultUsersData;
   data.forEach(
     (item: {
