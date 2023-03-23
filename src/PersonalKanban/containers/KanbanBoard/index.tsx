@@ -239,15 +239,16 @@ const KanbanBoardContainer: React.FC<KanbanBoardContainerProps> = (props) => {
           record.item_id
         );
       });
+      console.log(usersState);
       setColumns(updatedColumns);
-      // const bufferUsers = getMovedUsers(
-      //   usersState,
-      //   choosedUserId,
-      //   record,
-      //   column,
-      //   changedDT
-      // );
-      // setUsers(bufferUsers);
+      const bufferUsers = getMovedUsers(
+        usersState,
+        choosedUserId,
+        record,
+        column,
+        changedDT
+      );
+      setUsers(bufferUsers);
     },
 
     [columns, getRecordIndex, usersState, props]
@@ -258,8 +259,14 @@ const KanbanBoardContainer: React.FC<KanbanBoardContainerProps> = (props) => {
       const indexRecord = cloneUsersState[choosedUserId - 1].records.findIndex(
         (item) => item.id === idRecord
       );
+      const changedDT: string = new Date().toLocaleString().split(',').join('');
       const idTask =
         cloneUsersState[choosedUserId - 1].records[indexRecord].item_id;
+      const findCurrentRecord: any = cloneUsersState[indexRecord].records.find(
+        (record) => {
+          return record.item_id === idTask;
+        }
+      );
       const date = new Date();
 
       OpenProjectService.getTask(idTask).then((task: Record) => {
@@ -283,8 +290,18 @@ const KanbanBoardContainer: React.FC<KanbanBoardContainerProps> = (props) => {
           idTask
         );
       });
-      setUsers([...cloneUsersState]);
-      setUpdateTasks(true);
+      // if (cloneUsersState) {
+      //   const updateTasks = getMovedUsers(
+      //     cloneUsersState,
+      //     indexRecord,
+      //     findCurrentRecord,
+      //     findCurrentRecord?.status,
+      //     changedDT
+      //   );
+      //   setUsers(updateTasks);
+      // } else {
+      //   setUsers([...clo])
+      // }
     },
     [choosedUserId]
   );
