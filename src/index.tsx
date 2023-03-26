@@ -17,12 +17,12 @@ export const defaultUsersData: User[] = [
   },
   {
     id: 2,
-    name: 'Александр  Голубков',
+    name: 'Александр Голубков',
     records: [],
   },
   {
     id: 3,
-    name: 'Александр Плаксюк',
+    name: 'Александр Пласкюк',
     records: [],
   },
 ];
