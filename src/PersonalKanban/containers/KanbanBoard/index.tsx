@@ -78,7 +78,6 @@ const KanbanBoardContainer: React.FC<KanbanBoardContainerProps> = (props) => {
         allTasks.push({ ...val, nameProject: item.identifier });
       });
     }
-
     const users = getUsersFromResponse(defaultUsersData, allTasks);
     setUsers(users);
     contentCardKanbanChange(choosedUserId);
@@ -161,7 +160,7 @@ const KanbanBoardContainer: React.FC<KanbanBoardContainerProps> = (props) => {
         );
       })
     );
-    req();
+    window.location.reload();
     return result;
   }, [choosedUserId]);
 
@@ -254,22 +253,17 @@ const KanbanBoardContainer: React.FC<KanbanBoardContainerProps> = (props) => {
     [columns, getRecordIndex, usersState, props]
   );
   const handleRecordHours = React.useCallback(
-    (idRecord: string, hours: number) => {
+    async (idRecord: string, hours: number) => {
       const cloneUsersState = usersState;
       const indexRecord = cloneUsersState[choosedUserId - 1].records.findIndex(
         (item) => item.id === idRecord
       );
-      const changedDT: string = new Date().toLocaleString().split(',').join('');
       const idTask =
         cloneUsersState[choosedUserId - 1].records[indexRecord].item_id;
-      const findCurrentRecord: any = cloneUsersState[indexRecord].records.find(
-        (record) => {
-          return record.item_id === idTask;
-        }
-      );
+
       const date = new Date();
 
-      OpenProjectService.getTask(idTask).then((task: Record) => {
+      await OpenProjectService.getTask(idTask).then((task: Record) => {
         OpenProjectService.updateTime(
           {
             comment: {
@@ -302,6 +296,7 @@ const KanbanBoardContainer: React.FC<KanbanBoardContainerProps> = (props) => {
       // } else {
       //   setUsers([...clo])
       // }
+      window.location.reload();
     },
     [choosedUserId]
   );
