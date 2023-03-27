@@ -121,7 +121,6 @@ const KanbanBoardContainer: React.FC<KanbanBoardContainerProps> = (props) => {
 
   const handleToDefaultColumns = React.useCallback(async () => {
     // Получает пользователя с основными данными.
-    setUpdateTasks(true);
     const choosedUser = usersState.find((state) => {
       return state.id === choosedUserId;
     });
@@ -140,27 +139,31 @@ const KanbanBoardContainer: React.FC<KanbanBoardContainerProps> = (props) => {
 
     const result = await Promise.all(
       requestData.map(async (record) => {
-        const updatedColumns = reorderCards({
-          columns,
-          destinationColumn: columns[0],
-          destinationIndex: 0,
-          sourceColumn: columns[0],
-          sourceIndex: getRecordIndex(record.identificateId, columns[0].id)!,
-        });
-        setColumns(updatedColumns);
-        return await OpenProjectService.getTask(record.id).then(
-          (task: Record) => {
-            OpenProjectService.updateTaskToDefault(record.id, {
-              lockVersion: task.lockVersion,
-              _links: {
-                status: { href: COLUMNS_STATUSES[0].link },
-              },
-            });
-          }
-        );
+        if (requestData) {
+          const updatedColumns = reorderCards({
+            columns,
+            destinationColumn: columns[0],
+            destinationIndex: 0,
+            sourceColumn: columns[0],
+            sourceIndex: getRecordIndex(record.identificateId, columns[0].id)!,
+          });
+          setColumns(updatedColumns);
+          return await OpenProjectService.getTask(record.id).then(
+            (task: Record) => {
+              OpenProjectService.updateTaskToDefault(record.id, {
+                lockVersion: task.lockVersion,
+                _links: {
+                  status: { href: COLUMNS_STATUSES[0].link },
+                },
+              });
+            }
+          );
+        }
       })
     );
+
     window.location.reload();
+
     return result;
   }, [choosedUserId]);
 
@@ -238,7 +241,6 @@ const KanbanBoardContainer: React.FC<KanbanBoardContainerProps> = (props) => {
           record.item_id
         );
       });
-      console.log(usersState);
       setColumns(updatedColumns);
       const bufferUsers = getMovedUsers(
         usersState,
