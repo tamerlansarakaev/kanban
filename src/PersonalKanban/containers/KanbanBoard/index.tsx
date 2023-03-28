@@ -67,6 +67,7 @@ const KanbanBoardContainer: React.FC<KanbanBoardContainerProps> = (props) => {
     const currentUser = await OpenProjectService.getCurrentUser();
     const allTasks: any[] = [];
     const res = await OpenProjectService.getAllProjects();
+    console.log(res)
     const projects = res?._embedded.elements as IResponseProject[];
     for (const item of projects) {
       if (!item.active) continue;
