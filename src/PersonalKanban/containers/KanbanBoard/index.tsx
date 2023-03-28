@@ -67,7 +67,7 @@ const KanbanBoardContainer: React.FC<KanbanBoardContainerProps> = (props) => {
     const currentUser = await OpenProjectService.getCurrentUser();
     const allTasks: any[] = [];
     const res = await OpenProjectService.getAllProjects();
-    console.log(res)
+    console.log(res);
     const projects = res?._embedded.elements as IResponseProject[];
     for (const item of projects) {
       if (!item.active) continue;
@@ -263,7 +263,9 @@ const KanbanBoardContainer: React.FC<KanbanBoardContainerProps> = (props) => {
       );
       const idTask =
         cloneUsersState[choosedUserId - 1].records[indexRecord].item_id;
-
+      const currentTaskStatus = await OpenProjectService.getTask(idTask).then(
+        (record): Record => record._links.status.title
+      );
       const date = new Date();
 
       await OpenProjectService.getTask(idTask).then((task: Record) => {
@@ -287,19 +289,33 @@ const KanbanBoardContainer: React.FC<KanbanBoardContainerProps> = (props) => {
           idTask
         );
       });
-      // if (cloneUsersState) {
-      //   const updateTasks = getMovedUsers(
-      //     cloneUsersState,
-      //     indexRecord,
-      //     findCurrentRecord,
-      //     findCurrentRecord?.status,
-      //     changedDT
-      //   );
-      //   setUsers(updateTasks);
-      // } else {
-      //   setUsers([...clo])
-      // }
-      window.location.reload();
+      let indexCurrentColumn = 0;
+      let indexCurrentTask = 0;
+
+      const currentColumn = columns.find((column, i) => {
+        indexCurrentTask = i - 1;
+        return column.status === currentTaskStatus;
+      });
+
+      const currentTask = currentColumn?.records?.find((record) => {
+        if (record.item_id === idTask) {
+          record.hours += hours;
+        }
+        return record.item_id === idTask;
+      });
+
+      const cloneColumns: any = columns.map((columns) => columns);
+
+      const deletedRecord = cloneColumns[indexCurrentColumn].records?.splice(
+        indexCurrentTask,
+        1
+      );
+
+      setTimeout(() => {
+        cloneColumns[indexCurrentColumn].records?.push(currentTask);
+        setColumns(cloneColumns);
+        console.log(cloneColumns);
+      }, 100);
     },
     [choosedUserId]
   );
