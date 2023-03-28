@@ -13,7 +13,6 @@ export const getId = (): string => {
 
 const estimatedTime = (time: string) => {
   const interval: any = parse(time);
-  console.log(interval)
   const hours = interval.hours ? interval.hours : 0;
   const days = interval.days ? interval.days * 24 : 0;
   const weeks = interval.weeks ? interval.weeks * 7 * 24 : 0;
@@ -64,7 +63,6 @@ export const getUsersFromResponse = (
   defaultUsersData: User[],
   data: any
 ): User[] => {
-  console.log(data)
   let tempUsersData: User[] = defaultUsersData;
   data.forEach(
     (item: {
