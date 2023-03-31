@@ -73,7 +73,7 @@ const Card: React.FC<CardProps> = (props) => {
 
   const handleHoursAdd = () => {
     if (Number(hoursState) < 0) return;
-    handleRecordHours(record.id, Number(hoursState));
+    handleRecordHours(title, Number(hoursState));
     setHoursState(0);
   };
 
