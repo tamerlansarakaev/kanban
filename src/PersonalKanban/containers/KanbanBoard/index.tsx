@@ -64,10 +64,8 @@ const KanbanBoardContainer: React.FC<KanbanBoardContainerProps> = (props) => {
     if (updateTasks) {
       setLoading(true);
     }
-    const currentUser = await OpenProjectService.getCurrentUser();
     const allTasks: any[] = [];
     const res = await OpenProjectService.getAllProjects();
-    console.log(res);
     const projects = res?._embedded.elements as IResponseProject[];
     for (const item of projects) {
       if (!item.active) continue;
@@ -229,6 +227,7 @@ const KanbanBoardContainer: React.FC<KanbanBoardContainerProps> = (props) => {
       const newStatusUrl = COLUMNS_STATUSES.filter(
         (item) => item.status === column.status
       )[0].link;
+
       OpenProjectService.getTask(record.item_id).then((task: Record) => {
         OpenProjectService.updateTask(
           {
@@ -257,17 +256,11 @@ const KanbanBoardContainer: React.FC<KanbanBoardContainerProps> = (props) => {
   );
   const handleRecordHours = React.useCallback(
     async (idRecord: string, hours: number) => {
-      const cloneUsersState = usersState;
-      const indexRecord = cloneUsersState[choosedUserId - 1].records.findIndex(
-        (item) => item.id === idRecord
-      );
-      const idTask =
-        cloneUsersState[choosedUserId - 1].records[indexRecord].item_id;
+      const idTask = Number(idRecord);
       const currentTaskStatus = await OpenProjectService.getTask(idTask).then(
-        (record): Record => record._links.status.title
+        (record): any => record._links.status.title
       );
       const date = new Date();
-
       await OpenProjectService.getTask(idTask).then((task: Record) => {
         OpenProjectService.updateTime(
           {
@@ -289,35 +282,33 @@ const KanbanBoardContainer: React.FC<KanbanBoardContainerProps> = (props) => {
           idTask
         );
       });
-      let indexCurrentColumn = 0;
-      let indexCurrentTask = 0;
 
+      let indexCurrentColumn = 0;
       const currentColumn = columns.find((column, i) => {
-        indexCurrentTask = i - 1;
-        return column.status === currentTaskStatus;
+        indexCurrentColumn = i;
+        return column.title === currentTaskStatus;
       });
 
       const currentTask = currentColumn?.records?.find((record) => {
-        if (record.item_id === idTask) {
-          record.hours += hours;
-        }
         return record.item_id === idTask;
       });
-
-      const cloneColumns: any = columns.map((columns) => columns);
-
-      const deletedRecord = cloneColumns[indexCurrentColumn].records?.splice(
-        indexCurrentTask,
-        1
+      const cloneColumns = JSON.parse(JSON.stringify(columns));
+      const newTasks = cloneColumns[indexCurrentColumn].records?.map(
+        (record: Record) => {
+          if (record.item_id === currentTask?.item_id && record.hours) {
+            return { ...record, hours: record.hours + hours, id: idRecord };
+          }
+          return record;
+        }
       );
 
-      setTimeout(() => {
-        cloneColumns[indexCurrentColumn].records?.push(currentTask);
+      cloneColumns[indexCurrentColumn].records = newTasks;
+      if (cloneColumns[indexCurrentColumn].records) {
         setColumns(cloneColumns);
-        console.log(cloneColumns);
-      }, 100);
+      }
+      return;
     },
-    [choosedUserId]
+    [choosedUserId, columns]
   );
 
   // const handleAddRecord = React.useCallback(
@@ -396,7 +387,7 @@ const KanbanBoardContainer: React.FC<KanbanBoardContainerProps> = (props) => {
       req();
       setUpdateTasks(false);
     }
-  }, [columns]);
+  }, []);
   React.useEffect(() => {
     initialState = getInitialState(
       contentCardKanban.sort((a, b) => {
