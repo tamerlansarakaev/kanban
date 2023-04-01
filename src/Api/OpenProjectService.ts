@@ -18,9 +18,23 @@ export class OpenProjectService {
     return data;
   }
 
-  static async getCurrentUser() {
-    const { data } = await api.get('users/me');
-    return data;
+  static async getProjects() {
+    let allProjects = [];
+    let page = 1;
+    let pageSize = 100;
+
+    while (true) {
+      const { data } = await api.get('/projects', {
+        params: { page, pageSize },
+      });
+
+      allProjects.push(data);
+      if (!data || !data.length) {
+        break;
+      }
+      page++;
+    }
+    return allProjects;
   }
 
   static async getAllTaskByProject(project_id: number) {
