@@ -65,9 +65,17 @@ const KanbanBoardContainer: React.FC<KanbanBoardContainerProps> = (props) => {
       setLoading(true);
     }
     const allTasks: any[] = [];
-    const res = await OpenProjectService.getAllProjects();
-    const projects = res?._embedded.elements as IResponseProject[];
-    for (const item of projects) {
+    let finalProjects: any = [];
+    // const res = await OpenProjectService.getAllProjects();
+    const allProjects = await OpenProjectService.getProjects();
+
+    allProjects.forEach((projects: any) => {
+      finalProjects.push(...projects._embedded.elements);
+    });
+
+    // const projects = res?._embedded.elements as IResponseProject[];
+
+    for (const item of finalProjects) {
       if (!item.active) continue;
       const projectTasks = await OpenProjectService.getAllTaskByProject(
         item.id
