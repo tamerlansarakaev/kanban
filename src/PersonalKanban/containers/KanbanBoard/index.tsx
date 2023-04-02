@@ -147,14 +147,6 @@ const KanbanBoardContainer: React.FC<KanbanBoardContainerProps> = (props) => {
     const result = await Promise.all(
       requestData.map(async (record) => {
         if (requestData) {
-          const updatedColumns = reorderCards({
-            columns,
-            destinationColumn: columns[0],
-            destinationIndex: 0,
-            sourceColumn: columns[0],
-            sourceIndex: getRecordIndex(record.identificateId, columns[0].id)!,
-          });
-          setColumns(updatedColumns);
           return await OpenProjectService.getTask(record.id).then(
             (task: Record) => {
               OpenProjectService.updateTaskToDefault(record.id, {
