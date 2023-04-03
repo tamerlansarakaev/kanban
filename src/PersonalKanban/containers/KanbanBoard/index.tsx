@@ -68,7 +68,6 @@ const KanbanBoardContainer: React.FC<KanbanBoardContainerProps> = (props) => {
     let finalProjects: any = [];
     // const res = await OpenProjectService.getAllProjects();
     const allProjects = await OpenProjectService.getProjects();
-
     allProjects.forEach((projects: any) => {
       finalProjects.push(...projects._embedded.elements);
     });
@@ -76,7 +75,8 @@ const KanbanBoardContainer: React.FC<KanbanBoardContainerProps> = (props) => {
     // const projects = res?._embedded.elements as IResponseProject[];
 
     for (const item of finalProjects) {
-      if (!item.active) continue;
+      if (!item.active || item._links.status.title === 'Приостановлен')
+        continue;
       const projectTasks = await OpenProjectService.getAllTaskByProject(
         item.id
       );
@@ -85,6 +85,7 @@ const KanbanBoardContainer: React.FC<KanbanBoardContainerProps> = (props) => {
         allTasks.push({ ...val, nameProject: item.identifier });
       });
     }
+
     const users = getUsersFromResponse(defaultUsersData, allTasks);
     setUsers(users);
     contentCardKanbanChange(choosedUserId);
@@ -146,22 +147,20 @@ const KanbanBoardContainer: React.FC<KanbanBoardContainerProps> = (props) => {
 
     const result = await Promise.all(
       requestData.map(async (record) => {
-        if (requestData) {
-          return await OpenProjectService.getTask(record.id).then(
-            (task: Record) => {
-              OpenProjectService.updateTaskToDefault(record.id, {
-                lockVersion: task.lockVersion,
-                _links: {
-                  status: { href: COLUMNS_STATUSES[0].link },
-                },
-              });
-            }
-          );
-        }
+        return await OpenProjectService.getTask(record.id).then(
+          (task: Record) => {
+            OpenProjectService.updateTaskToDefault(record.id, {
+              lockVersion: task.lockVersion,
+              _links: {
+                status: { href: COLUMNS_STATUSES[0].link },
+              },
+            });
+          }
+        );
       })
-    );
-
-    window.location.reload();
+    ).then(() => {
+      window.location.reload();
+    });
 
     return result;
   }, [choosedUserId]);
