@@ -293,9 +293,13 @@ const KanbanBoardContainer: React.FC<KanbanBoardContainerProps> = (props) => {
       });
       const cloneColumns = JSON.parse(JSON.stringify(columns));
       const newTasks = cloneColumns[indexCurrentColumn].records?.map(
-        (record: Record) => {
-          if (record.item_id === currentTask?.item_id && record.hours) {
-            return { ...record, hours: record.hours + hours, id: idRecord };
+        (record: any) => {
+          if (record.item_id === currentTask?.item_id) {
+            return {
+              ...record,
+              hours: record.hours + hours,
+              id: idRecord,
+            };
           }
           return record;
         }
