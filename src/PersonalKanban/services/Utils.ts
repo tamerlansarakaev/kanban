@@ -26,18 +26,17 @@ const estimatedTime = (time: string) => {
 export const getMovedUsers = (
   usersState: User[],
   choosedUserId: number,
-  record: Record,
+  record: Record | any,
   column: Column,
   changedDT: string
 ) => {
   const bufferUsers: User[] = usersState;
   const chosenUser: User = usersState[choosedUserId - 1];
   let bufferRecords: Record[] = [];
-
   chosenUser.records.forEach((value) => {
-    if (value.id === record.id) {
+    if (value.item_id === record.item_id) {
       bufferRecords = chosenUser.records.filter(
-        (item) => item.id !== record.id
+        (item) => item.item_id !== record.item_id
       );
       bufferRecords.push({
         ...record,
