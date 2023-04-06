@@ -117,6 +117,7 @@ const KanbanBoardContainer: React.FC<KanbanBoardContainerProps> = (props) => {
   const contentCardKanbanChange = (dataClick: number) => {
     // здесь находится функционал, меняющий содержимое канбана
     // в данном случае после клика, используя полученное значение, находим нужные данные и сохраняем в state приложения
+
     setChoosedUserId(dataClick);
     setContentCardKanban(
       usersState.filter((item) => item.id === dataClick)[0].records
@@ -144,6 +145,7 @@ const KanbanBoardContainer: React.FC<KanbanBoardContainerProps> = (props) => {
     });
 
     // Ставит колонны на в плане, выбранного пользователя.
+    let statusRequest: boolean = false;
 
     const result = await Promise.all(
       requestData.map(async (record) => {
@@ -158,11 +160,12 @@ const KanbanBoardContainer: React.FC<KanbanBoardContainerProps> = (props) => {
           }
         );
       })
-    ).then(() => {
-      window.location.reload();
-    });
-
-    return result;
+    ).then(() => (statusRequest = true));
+    if (statusRequest) {
+      setTimeout(() => {
+        window.location.reload();
+      }, 1000);
+    }
   }, [choosedUserId]);
 
   // const handleColumnMove = React.useCallback(
@@ -248,6 +251,7 @@ const KanbanBoardContainer: React.FC<KanbanBoardContainerProps> = (props) => {
         column,
         changedDT
       );
+
       setUsers(bufferUsers);
     },
 
@@ -288,13 +292,18 @@ const KanbanBoardContainer: React.FC<KanbanBoardContainerProps> = (props) => {
         return column.title === currentTaskStatus;
       });
 
+      let indexTask = 0;
+
       const currentTask = currentColumn?.records?.find((record) => {
         return record.item_id === idTask;
       });
+      let resultHours = 0;
       const cloneColumns = JSON.parse(JSON.stringify(columns));
       const newTasks = cloneColumns[indexCurrentColumn].records?.map(
-        (record: any) => {
+        (record: any, i: number) => {
           if (record.item_id === currentTask?.item_id) {
+            indexTask = i;
+            resultHours = hours + record.hours;
             return {
               ...record,
               hours: record.hours + hours,
@@ -304,14 +313,24 @@ const KanbanBoardContainer: React.FC<KanbanBoardContainerProps> = (props) => {
           return record;
         }
       );
+      const changedDT: string = new Date().toLocaleString().split(',').join('');
 
       cloneColumns[indexCurrentColumn].records = newTasks;
+
       if (cloneColumns[indexCurrentColumn].records) {
+        const bufferUsers = getMovedUsers(
+          usersState,
+          choosedUserId,
+          newTasks[indexTask],
+          cloneColumns[indexCurrentColumn],
+          changedDT
+        );
         setColumns(cloneColumns);
+        setUsers(bufferUsers);
       }
       return;
     },
-    [choosedUserId, columns]
+    [choosedUserId, columns, usersState]
   );
 
   // const handleAddRecord = React.useCallback(
@@ -383,7 +402,7 @@ const KanbanBoardContainer: React.FC<KanbanBoardContainerProps> = (props) => {
   );
   React.useEffect(() => {
     StorageService.setColumns(columns);
-  }, [columns, contentCardKanban]);
+  }, []);
 
   React.useEffect(() => {
     if (updateTasks) {
