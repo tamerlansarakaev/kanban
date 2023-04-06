@@ -145,6 +145,7 @@ const KanbanBoardContainer: React.FC<KanbanBoardContainerProps> = (props) => {
     });
 
     // Ставит колонны на в плане, выбранного пользователя.
+    let statusRequest: boolean = false;
 
     const result = await Promise.all(
       requestData.map(async (record) => {
@@ -159,11 +160,12 @@ const KanbanBoardContainer: React.FC<KanbanBoardContainerProps> = (props) => {
           }
         );
       })
-    ).then(() => {
-      window.location.reload();
-    });
-
-    return result;
+    ).then(() => (statusRequest = true));
+    if (statusRequest) {
+      setTimeout(() => {
+        window.location.reload();
+      }, 1000);
+    }
   }, [choosedUserId]);
 
   // const handleColumnMove = React.useCallback(
